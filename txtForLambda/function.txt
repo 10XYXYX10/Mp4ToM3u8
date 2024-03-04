@@ -7,8 +7,8 @@ def lambda_handler(event, context):
 	bucket = event['Records'][0]['s3']['bucket']['name']
 	#Lambda関数がS3イベントをトリガーとして呼び出された際に、そのイベントからオブジェクト(ファイル)のkey名を取得～URLデコード
 	key = urllib.parse.unquote_plus(event['Records'][0]['s3']['object']['key'], encoding='utf-8')
-    #保存先のディレクトリ名の値で使用 #例「mp4/abc/example.mp4」
-	addDirName = key[:-4]　#拡張子「.mp4」除外 #例「mp4/abc/example」
+	#保存先のディレクトリ名の値で使用 #例「mp4/abc/example.mp4」
+	addDirName = key[:-4] #拡張子「.mp4」除外 #例「mp4/abc/example」
 	addDirName = addDirName[4:] #このLambda関数のトリガーには、S3のディレクトリ「mp4/」を設定。その「/mp4」を除外 #例「abc/example」
 	addDirName = "_".join(addDirName.split('/')) #例「abc_example」
 
@@ -21,13 +21,13 @@ def lambda_handler(event, context):
 	}
 
 	#Boto3を使用してAWS Elemental MediaConvertサービスに対するクライアント(APIクライアント)を作成
-	client = boto3.client('mediaconvert', endpoint_url = "XXX")
+	client = boto3.client('mediaconvert', endpoint_url = "https://mpazqbhuc.mediaconvert.ap-northeast-1.amazonaws.com")
 
 	#AWS Elemental MediaConvertサービスに対して新しいメディア変換ジョブを作成するためのリクエストを送信
 	result = client.create_job(
 		#メディア変換ジョブを実行するためのIAMロールのARN
-		Role = "XXX",
-		#ジョブテンプレートを指定
+		Role = "arn:aws:iam::697257338891:role/RoleForMediaConvert",
+		#作成するメディア変換ジョブに使用するジョブテンプレート。*事前に作成しておく
 		JobTemplate = "mp4ToHls",
 		#「make_settings(bucket, key)」で作成したディア変換ジョブの詳細な設定を含む情報を指定
 		Settings=settings,
@@ -50,7 +50,7 @@ def make_settings(bucket, key, addDirName):
 					"AudioSelector1": {
 						"Offset": 0,#オーディオストリームの開始位置を秒単位で指定。デフォルトは0。
 						"DefaultSelection": "DEFAULT",#デフォルトのオーディオストリームを選択する方法を指定。"DEFAULT"を指定すると、入力コンテナがデフォルトのオーディオトラックを定義している場合、そのトラックが選択される。
-						"ProgramSelection": 1#プログラム番号を指定。これは、複数のプログラム(例えば、マルチプログラムトランスポートストリームなど)が含まれる入力を処理する際に使用。この例では、最初のプログラム(1)が選択される。
+						"ProgramSelection": 1#プログラム番号を指定します。これは、複数のプログラム(例えば、マルチプログラムトランスポートストリームなど)が含まれる入力を処理する際に使用。この例では、最初のプログラム(1)が選択される。
 					}
 				},
 			}
@@ -58,11 +58,11 @@ def make_settings(bucket, key, addDirName):
 		#出力グループをリストで定義。複数指定可能。
 		"OutputGroups": [
 			{
-				#出力グループに名。
+				#出力グループに名を任意で命名。
 				"Name": "Apple HLS",
 				#出力グループの設定を指定
 				"OutputGroupSettings": {
-					#出力グループのタイプを指定。今回は、HLS形式の出力を行うために、HLS_GROUP_SETTINGSを指定
+					#出力グループのタイプを指定。今回は、。HLS形式の出力を行うために、HLS_GROUP_SETTINGSを指定
 					"Type": "HLS_GROUP_SETTINGS",
 					#出力するHLS形式に関する詳細設定をオブジェクト形式で指定。
 					"HlsGroupSettings": {
@@ -82,8 +82,8 @@ def make_settings(bucket, key, addDirName):
 							{
 								"AudioSourceName": "AudioSelector1"
 							}
-						]
-					}
+						],
+					},
 				],
 			},
 		],
