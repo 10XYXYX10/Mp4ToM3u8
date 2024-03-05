@@ -21,12 +21,12 @@ def lambda_handler(event, context):
 	}
 
 	#Boto3を使用してAWS Elemental MediaConvertサービスに対するクライアント(APIクライアント)を作成
-	client = boto3.client('mediaconvert', endpoint_url = "https://mpazqbhuc.mediaconvert.ap-northeast-1.amazonaws.com")
+	client = boto3.client('mediaconvert', endpoint_url = "XXX")
 
 	#AWS Elemental MediaConvertサービスに対して新しいメディア変換ジョブを作成するためのリクエストを送信
 	result = client.create_job(
 		#メディア変換ジョブを実行するためのIAMロールのARN
-		Role = "arn:aws:iam::697257338891:role/RoleForMediaConvert",
+		Role = "XXX",
 		#作成するメディア変換ジョブに使用するジョブテンプレート。*事前に作成しておく
 		JobTemplate = "mp4ToHls",
 		#「make_settings(bucket, key)」で作成したディア変換ジョブの詳細な設定を含む情報を指定
