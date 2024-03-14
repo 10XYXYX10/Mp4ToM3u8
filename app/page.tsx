@@ -2,7 +2,7 @@
 'use client'
 import { useRef, useState, useEffect } from "react";
 import Hls from "hls.js";
-const m3u8Url = 'https://sample-practice-app.s3.ap-northeast-1.amazonaws.com/m3u8/freeMovie/freeMovie.m3u8'
+const m3u8Url = 'https://sample-practice-app.s3.ap-northeast-1.amazonaws.com/m3u8/sample/sample.m3u8'
 
 export default function M3u8ForOtherThanPC() {
   const videoEl = useRef<HTMLVideoElement>(null);
@@ -38,30 +38,29 @@ export default function M3u8ForOtherThanPC() {
                 hlsInstance.swapAudioCodec();//オーディオ コーデックの不一致を回避するのに役立つ可能性があります。
                 hlsInstance.recoverMediaError();
               }
-              setErrCount((preve)=>preve+1);
               break;
             case Hls.ErrorTypes.NETWORK_ERROR:
               console.error('fatal network error encountered', data);
               break;
             default:
               // cannot recover
-              console.log(`cannot recover：${JSON.stringify(data)}`);
+              console.log(`cannot recover : ${data}`);
               setError(data.error.message);
               hlsInstance.destroy();
               break;
           }
+          setErrCount((preve)=>preve+1);
         }
       });
       setHls(hlsInstance);
     }
-
     return () => {
         if(hls){
             hls.stopLoad();
             hls.destroy();
         }
     };
-  }, [hls,errCount]);
+  }, [hls]);
  
   return (<>
     {error && <p style={{color:'red'}}>{error}</p>}
